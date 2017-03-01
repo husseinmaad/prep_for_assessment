@@ -1,0 +1,4 @@
+1- each category has many articles
+2- each article belong to one category
+3- create table for articles has article name and category id 
+4- create table categories has article name

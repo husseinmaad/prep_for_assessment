@@ -1,0 +1,78 @@
+AJAX STEPS:
+=================
+Step 1: Find what you would like to target (HTML elements)
+ 
+Step 2: Use jQuery to bind event listener(s) and prevent default action of target
+ 
+Step 3: Use the jQuery #ajax method to make the request
+ 
+Step 4: Modify the controller to determine how to handle the request based off of type (xhr or not)
+
+Step 4: Use the #done method to handle the response that is sent back and modify page
+ 
+Step 5: Use the #fail method to handle errors if the request fails
+
+
+
+$(document).ready(function() {
+  loadNewHorseForm();
+  createNewHorse();
+  loadHorseDetails();
+});
+
+
+var loadNewHorseForm = function(){
+  $('#add-horse-button').on("submit", function(event){
+    event.preventDefault();
+
+    $button = $(this);
+    var url = $button.attr("action");
+    var method = $button.attr("method");
+
+    var request = $.ajax({
+      url: url,
+      method: method
+    })
+
+    request.done(function(response){
+      $button.hide();
+      $('body').append(response);
+    })
+
+    request.fail(function(){
+      alert("AJAX FAILURE");
+    });
+  });
+};
+
+var createNewHorse = function(){
+  $("body").on("submit", '#new-horse-form', function(event){
+    event.preventDefault();
+
+    $form = $(this);
+    var url = $form.attr("action");
+    var method = $form.attr("method");
+    var data = $form.serialize();
+
+    var request = $.ajax({
+      url: url,
+      method: method,
+      data: data
+    })
+
+    request.done(function(response){
+      $('.list').append(response);
+      $form.hide();
+      $("#add-horse-button").show();
+    })
+
+    request.fail(function(){
+      alert("AJAX FAILURE");
+    });
+
+  });
+};
+
+.html :replace all the html that have this tags 
+.text :replace only text
+.preappend  : append from the top
