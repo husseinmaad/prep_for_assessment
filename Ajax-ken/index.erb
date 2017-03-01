@@ -1,0 +1,12 @@
+<h1>Stuff</h1>
+
+<div id='toilet'>
+  <% @poops.each do |poop| %>
+    <%= erb :"_poop", locals: { poop: poop } %>
+  <% end %>
+</div>
+
+<form id="the-form" action="/poop" method="post">
+  <input type="text" name="poop[texture]">
+  <input type="submit" value="Flush">
+</form>

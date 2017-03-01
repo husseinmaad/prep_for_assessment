@@ -1,1 +1,292 @@
-# prep_for_assessment
+User model
+================
+
+class User < ActiveRecord::Base
+  # Remember to create a migration!
+  validates :user_name,:email, :presence => true
+  validates :email, :uniqueness => true, :presence => true
+  validates :password_hash, :uniqueness => true
+
+  def password
+    @password ||= BCrypt::Password.new(password_hash)
+  end
+
+  def password=(new_password)
+    @password = BCrypt::Password.create(new_password)
+    self.password_hash = @password
+  end
+
+  def self.authenticate(email, password)
+    # if email and password correspond to a valid user, return that user
+    # otherwise, return nil
+    user = User.find_by(email: email)
+    if user && user.password == password
+      return user
+    else
+      return nil
+    end
+  end
+end
+=====================================================================
+
+User helper
+=====================================================================
+
+
+# helper method to print out the obj that pass*just for me to check the values in the server side"
+
+def helper_check_print(message,to_print)
+  puts "**********<<<<<<<<<<<<<< #{message} >>>>>>>>>>>>>>>>>>>**********"
+   p to_print
+  puts "**********<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>>**********"
+end 
+
+def login(user)
+  session[:user_id] = user.id
+
+  helper_check_print("START SESSION LOG IN",session)
+end
+
+def logout
+  session.clear
+  helper_check_print("SESSION CLEAR SIGN OUT",session)
+
+end
+
+def current_user
+  @user = User.find_by(id: session[:user_id])
+end
+
+==================================================================
+User migration
+==================================================================
+class CreateUsers < ActiveRecord::Migration
+  def change
+    create_table :users do |t|
+      t.string :user_name , null: false
+      t.string  :email , null: false
+      t.string :password_hash , null: false
+      t.timestamps  null: false
+    end
+  end
+end
+==================================================================
+User_controller
+==================================================================
+
+
+# Create a new user
+get '/users/new' do
+  erb:'users/new.html'
+end
+
+# Register a new user
+post '/users' do
+  
+  @user = User.new(params[:user])
+  if @user.save
+    helper_check_print("USER LOG IN AFTER SGIN UP" ,@user)
+    login(@user)
+    redirect "users/#{@user.id}"
+  else
+    redirect "/users/new"
+  end
+end
+
+# User Profile page
+get '/users/:id' do
+  @user = User.find(params[:id])
+  erb:'users/show.html'
+end
+
+
+
+
+
+==================================================================
+sessions controller
+==================================================================
+
+
+
+# Login page
+get '/login' do
+  erb:'sessions/new.html'
+end
+
+# Request to login, redirect to user profile
+post '/login' do
+  @user_info = params[:user]
+  @user = User.authenticate(@user_info[:email], @user_info[:password])
+  if @user
+    login(@user)
+
+    helper_check_print("USER LOG IN" ,@user)
+    redirect "users/#{@user.id}"
+  else
+    erb:'sessions/new.html'
+  end
+end
+
+# Request to logout, redirect to home page
+delete '/logout' do
+  logout
+  redirect '/'
+end
+
+get '/logout' do
+  logout
+  redirect '/'
+end
+==================================================================
+Login form in session	folder view
+==================================================================
+
+<!-- User Login Form -->
+
+<h2>Log In</h2>
+<form id="login" method="post" action="/login">
+  <p><label for="email">Email:</label><br>
+    <input class="form-control" type="text" name="user[email]" >
+  </p>
+
+  <p><label for="password">Password:</label><br>
+  <input class="form-control" type="password" name="user[password]" ></p>
+
+  <!-- BUTTON -->
+   <input class="btn btn-primary" type="submit" value="Login" class="button">
+</form>
+<p>Not a user? <a href="/users/new">Sign Up</a></p>
+
+==================================================================
+Sign up in user folder view
+==================================================================
+
+
+<h1>Sign Up</h1>
+<form id="sign-up" method="post" action="/users">
+  <p>
+    <label for="user_name">User Name:</label>
+    <input class="form-control" type="text" name="user[user_name]">
+  </p>
+  <p>
+    <label for="Email">Email:</label>
+    <input class="form-control" type="text" name="user[email]">
+  </p>
+  <p>
+    <label for="password">Password:</label>
+    <input class="form-control" type="password" name="user[password]">
+  </p>
+  <!-- BUTTON -->
+  <input class="btn btn-primary" type="submit" value="Sign Up" class="button">
+</form>
+
+==================================================================
+Profile show viewer
+==================================================================
+
+<!-- User Profile Page -->
+<h2>Hi <%= @user.user_name%>!</h2>
+
+<h2>Your Profile</h2>
+
+<form id="logout" method="post" action="/logout">
+  <input type="hidden" name="_method" value="delete">
+  <input class="btn btn-primary" type="submit" value="Logout" class="button">
+</form>
+
+
+
+
+==================================================================
+Layout 
+==================================================================
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="stylesheet" href="/css/normalize.css?app=skills">
+  <!-- Latest compiled and minified CSS -->
+
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+  <link rel="stylesheet" href="/css/application.css?app=skills">
+
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script src="/js/application.js?app=skills"></script>
+
+  <title></title>
+</head>
+<body>
+  <header>
+    <div class="container">
+      <div class="row">
+        <div class="col-md-5">
+          <div class="page-header">
+            <h1>Your App Name</h1>
+          </div>
+        </div>
+        <div class="col-md-7">
+          <nav class="navbar navbar-default">
+            <ul class="nav navbar-nav">
+              <li><a href="/">Main Page</a></li>
+              <% if current_user %>
+                <li><a href="/users/<%= current_user.id %>">Profile</a></li>
+                <li class="logout-link"><a href="/logout">Logout</a></li>
+              <% else %>
+                <li><a href="/users/new">Sign Up</a></li>
+                <li><a href="/login">Login</a></li>
+              <% end %>
+            </ul>
+          </nav>
+        </div>
+        </div>
+    </div>
+  </header>
+  <main class="content">
+    <div class="container">
+      <div class="row">
+        <%= yield %>
+      </div>
+    </div>
+  </main>
+
+
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+</body>
+</html>
+
+
+==================================================================
+Gem files ****** need to require bcrypt 
+==================================================================
+
+source 'https://rubygems.org'
+
+# PostgreSQL driver
+gem 'pg'
+
+# Sinatra driver
+gem 'sinatra', '~> 1.0'
+gem 'sinatra-contrib'
+
+gem 'activesupport', '~>4.2.0'
+gem 'activerecord', '~>4.2.0'
+
+gem 'rake'
+
+gem 'shotgun', '~>0.9.1'
+
+group :test do
+  gem 'shoulda-matchers'
+  gem 'rack-test'
+  gem 'rspec', '~>3.0'
+  gem 'capybara'
+  gem 'bcrypt'
+end
+
+group :test, :development do
+  gem 'factory_girl'
+  gem 'faker'
+  gem 'pry-byebug'
+end
+
