@@ -1,0 +1,142 @@
+FIRST!!!!!-----
+
+bundle install
+
+then make schema and wireframe!
+
+
+be rake db:create
+
+be rake generate:migration
+============================================================================
+*in app make you necessary tables and have a small skeleton to later fill in*
+
+create_table :name |t|
+
+t.string :thing
+
+end
+
+
+Go to controller and make the necessary files
+===========================================
+users_controller.rb
+cars_controller.rb
+
+
+Then Models
+=============
+user.rb
+car.rb
+
+
+Then make necessary folders in views
+================================
+users
+sessions
+cars
+
+In config folder/enviornment
+=============================
+add bcrypt
+in gem file
+add bcrypt
+
+----
+
+fill in files
+fill in the migrations table
+
+go to models and make associations and validations
+has_many
+belongs_to
+
+Validates
+=================
+validates :username, presences: true
+validates :email, presence: true, uniqueness: true
+validates :password, presence: true
+
+
+go into console(be rake console)
+check if you can get the info you need!
+
+----
+
+Finally make routes
+===================
+
+          get ‘/‘ do
+
+          redirect ‘to wherever”
+
+          or
+
+          erb :index
+
+          end
+
+ask yourself do i need and index
+if yes make a index route that renders you a index of all cars
+
+do i need to let my view file access certain info?
+
+yes so make an instance variable
+
+          get ‘/cars’ do
+
+          @cars = Car.all
+
+          erb :”cars/index"
+
+          end
+
+
+____go into views and in your cars folder make a index.erb file in your cars folder
+inside views make a each loop that will go through all the cars and print out name of car or whatever you need
+
+          <%@cars.each do |car|%>
+
+          <%= car.brand%>
+
+          <%= car.name%>
+
+          <%end%>
+
+
+
+do I need to make a new car?
+yes then make a route that will get you a new form
+
+        get ‘/cars/new’ do
+        erb :”cars/new"
+
+        end
+
+
+____go into views and in your cars folder make a new.erb file in your cars folder
+
+
+
+well I’m making a new car so i have to store the data so make a post
+post ‘/cars’
+
+make a new instance
+
+        @car = Car.new(params[:car]
+
+        if car.save
+
+        redirect ‘/cars’ (to see car)
+
+        else
+
+        @error = “couldnt make a new car please try again”
+
+        erb :’cars/new”
+
+        end
+
+        end
+
+continue to do that with the rest of the restful routes make route then view until you are done!
