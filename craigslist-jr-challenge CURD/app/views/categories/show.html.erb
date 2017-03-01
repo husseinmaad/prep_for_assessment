@@ -1,0 +1,26 @@
+<div class="container">
+<h1><%=@category.name%></h1>
+<hr>
+<h3>Articles</h3>
+<ul>
+  <% @category.articles.each do |article|%>
+    <li><h4><a href="/categories/<%=@category.id%>/articles/<%=article.id%>"><%=article.title%></a></h4></li>
+    <hr>
+  <%end%>
+</ul>
+</div>
+<div class="container">
+  <h4>Add an Article</h4>
+  <form id="add-article" method="post" id="articleform" action="/categories/<%=@category.id%>/articles/new">
+
+    <!-- <input type = "textarea" name ="question"> -->
+    <label>Title</label>
+    <br>
+    <input type="text" name="article[title]">
+    <br>
+    <label>descreption</label>
+    <textarea class="form-control" rows="3" name="article[descreption]"></textarea>
+    <br>
+    <input class="btn btn-primary" type = "submit" id="article_button" value = "Submit">
+  </form>
+</div>

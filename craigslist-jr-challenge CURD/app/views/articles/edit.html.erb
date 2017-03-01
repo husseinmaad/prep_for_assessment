@@ -1,0 +1,14 @@
+ <div class="container">
+ <h3>Edit Form (<%= @article.title%>) Article</h3>
+ <form  method="post" action="/categories/<%=@category.id%>/articles/<%= @article.id%>">
+    <input type="hidden" name="_method" value="put">
+    <label>Title</label>
+    <br>
+    <input type="text" name="article[title]" value = "<%= @article.title%>">
+    <br>
+    <label>descreption</label>
+    <textarea class="form-control" rows="3" name="article[descreption]"><%= @article.descreption%></textarea>
+    <br>
+    <input type="submit" value="Edit">
+  </form>
+  </div>

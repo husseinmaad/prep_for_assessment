@@ -1,0 +1,10 @@
+
+<div class="container">
+  <h1>Welcome to Craigslist Jr.</h1>
+  <hr>
+  <ul>
+  <% @categories.each do |category|%>
+    <li><h3><a href="categories/<%=category.id%>/articles"><%=category.name%></a></h3></li>
+  <%end%>
+  </ul>
+</div>
